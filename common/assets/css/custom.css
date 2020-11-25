@@ -1,0 +1,10 @@
+.content label.error:not(.form-control) {
+    color: #EB5E28;
+    font-weight: 300;
+    font-size: 0.8em;
+}
+
+.form-horizontal .error {
+    padding-top: 10px;
+    display: inline-block;
+}

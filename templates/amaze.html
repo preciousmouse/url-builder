@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="icon" type="image/png" href="../common/assets/img/favicon.png">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Url Builder</title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' name='viewport'>
+  <meta name="viewport" content="width=device-width">
+
+  <!-- Bootstrap core CSS     -->
+  <link href="../common/assets/css/bootstrap.min.css" rel="stylesheet">
+  <!--  Paper Dashboard CSS    -->
+  <link href="../common/assets/css/amaze.css" rel="stylesheet">
+  <!--  CSS for Demo Purpose, don't include it in your project     -->
+  <!-- <link href="../common/assets/css/demo.css" rel="stylesheet"> -->
+  <link href="../common/assets/css/custom.css" rel="stylesheet">
+  <!--  Fonts and icons     -->
+  <link href="../common/assets/css/font-awesome.min.css" rel="stylesheet">
+  <link href="../common/assets/css/font-muli.css" rel='stylesheet' type='text/css'>
+  <link href="../common/assets/css/themify-icons.css" rel="stylesheet">
+  <link href="../common/assets/vendors/dropzone/dropzone.min.css" rel="stylesheet">
+  <link href="../common/assets/vendors/sweetalert/css/sweetalert2.min.css" rel="Stylesheet">
+</head>
+
+<body>
+  <div id="root"></div>
+  <!--   Core JS Files   -->
+  <script src="../common/assets/vendors/jquery-3.1.1.min.js" type="text/javascript"></script>
+  <script src="../common/assets/vendors/jquery-ui.min.js" type="text/javascript"></script>
+  <script src="../common/assets/vendors/bootstrap.min.js" type="text/javascript"></script>
+  <script src="../common/assets/vendors/material.min.js" type="text/javascript"></script>
+  <script src="../common/assets/vendors/perfect-scrollbar.jquery.min.js" type="text/javascript"></script>
+  <!-- Forms Validations Plugin -->
+  <script src="../common/assets/vendors/jquery.validate.min.js"></script>
+  <script src="../common/assets/vendors/jquery.validate.zh.js"></script>
+  <!--  Plugin for Date Time Picker and Full Calendar Plugin-->
+  <script src="../common/assets/vendors/moment.min.js"></script>
+  <!--  Charts Plugin -->
+  <script src="../common/assets/vendors/chartist.min.js"></script>
+  <!--  Plugin for the Wizard -->
+  <script src="../common/assets/vendors/jquery.bootstrap-wizard.js"></script>
+  <!--  Notifications Plugin    -->
+  <script src="../common/assets/vendors/bootstrap-notify.js"></script>
+  <!-- DateTimePicker Plugin -->
+  <script src="../common/assets/vendors/bootstrap-datetimepicker.js"></script>
+  <!--  Checkbox, Radio, Switch and Tags Input Plugins -->
+  <script src="../common/assets/js/bootstrap-checkbox-radio-switch-tags.js"></script>
+  <!-- Vector Map plugin -->
+  <script src="../common/assets/vendors/jquery-jvectormap.js"></script>
+  <!-- Sliders Plugin -->
+  <script src="../common/assets/vendors/nouislider.min.js"></script>
+  <!--  Google Maps Plugin    -->
+  <!-- <script src="https://ditu.google.cn/maps/api/js"></script> -->
+  <!-- Select Plugin -->
+  <script src="../common/assets/vendors/jquery.select-bootstrap.js"></script>
+  <!--  DataTables.net Plugin    -->
+  <script src="../common/assets/vendors/jquery.datatables.js"></script>
+  <!-- Sweet Alert 2 plugin -->
+  <script src="../common/assets/vendors/sweetalert/js/sweetalert2.min.js"></script>
+  <!--	Plugin for Fileupload, full documentation here: http://www.jasny.net/bootstrap/javascript/#fileinput -->
+  <script src="../common/assets/vendors/jasny-bootstrap.min.js"></script>
+  <!--  Full Calendar Plugin    -->
+  <script src="../common/assets/vendors/fullcalendar.min.js"></script>
+  <!-- TagsInput Plugin -->
+  <script src="../common/assets/vendors/jquery.tagsinput.js"></script>
+  <!-- Material Dashboard javascript methods -->
+  <script src="../common/assets/js/amaze.js"></script>
+  <!-- Material Dashboard DEMO methods, don't include it in your project! -->
+  <!-- <script src="../common/assets/js/demo.js"></script> -->
+
+  <script src="../common/assets/vendors/dropzone/dropzone.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      var $validator = $("#validate-form").validate({
+        rules: {
+          preset: {
+            required: true,
+          },
+          type: {
+            required: true,
+            number: true,
+          },
+        },
+        errorPlacement: function (error, element) {
+          console.log('error', element)
+          error.appendTo(element.parent().next());
+        }
+      });
+
+      _updateHorizontalProgressBar = function (tab, navigation, index, wizard) {
+        var total = navigation.find('li').length;
+        var current = index + 0;
+        var percent = (current / (total - 1)) * 100;
+        var percentWidth = 100 - (100 / total) + '%';
+
+        wizard.find('.progress-bar').css({ width: percent + '%' });
+        wizard.find('.progress').css({ 'width': percentWidth });
+      };
+
+      const
+      const nativeHtml = `
+                <div>
+
+                </div>
+            `;
+      const hybridHtml = `
+                <div>
+
+                </div>
+            `;
+      const webappsHtml = `
+                <div>
+
+                </div>
+            `;
+      $('#formwizard_simple').bootstrapWizard({
+        onNext: function (tab, navigation, index) {
+          var $valid = $('#validate-form').valid();
+          if (!$valid) {
+            $validator.focusInvalid();
+            return false;
+          }
+        },
+        onTabShow: function (tab, navigation, index) {
+          _updateHorizontalProgressBar(tab, navigation, index, $('#formwizard_simple'));
+
+          console.log('onTabShow', tab, navigation, index);
+          if (index == 1) {
+            const type = $("#pageType").val();
+            const tabHtml = {
+              1: nativeHtml,
+              2: hybridHtml,
+              3: webappsHtml,
+            }[type];
+            // $("#fws_tab2").html(tabHtml);
+          }
+
+          var total = navigation.find('li').length;
+          var wizard = navigation.closest('#formwizard_simple');
+          if (index == 0) {
+            $(wizard).find('.previous').hide();
+            $(wizard).find('.next').show();
+            $(wizard).find('.finish').hide();
+          } else if (index == 1) {
+            $(wizard).find('.previous').show();
+            $(wizard).find('.next').hide();
+            $(wizard).find('.finish').show();
+          } else if (index == total - 1) {
+            $(wizard).find('.previous').show();
+            $(wizard).find('.next').hide();
+            $(wizard).find('.finish').hide();
+          } else {
+            $(wizard).find('.previous').show();
+            $(wizard).find('.next').show();
+            $(wizard).find('.finish').hide();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

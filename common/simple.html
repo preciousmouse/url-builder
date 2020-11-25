@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #container {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #urlForm {
+            width: 100%;
+        }
+
+        #answerContent {
+            overflow-wrap: break-word;
+            color: rgba(255, 0, 0, 0.521);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <form id="urlForm" action="javascript:void(0)">
+            <label for="pageType">页面类型</label>
+            <select name="pageType" id="pageType">
+                <option value="0" selected disabled>-- 选择类型 --</option>
+                <option value="1">Native</option>
+                <option value="2">Hybrid</option>
+                <option value="3">Webapps</option>
+            </select><br /><br />
+            <div id="pageContent"></div><br />
+            <div id="answerContent"></div><br />
+        </form>
+    </div>
+
+    <template id="nativeContent">
+        <!-- <label for="page">内置页面</label>
+        <input type="text" id="page" name="page" /> -->
+        <input type="text" id="type" name="key0" value="type" disabled /> =
+        <input type="text" id="type" name="value0" required /><br /><br />
+        <button class="add" type="button" onclick="appendParamInput(this)">新增参数</button>
+        <button class="submit" type="submit">生成</button>
+        <template id="customParam">
+            <div>
+                <input type="text" id="" name="" /> =
+                <input type="text" id="" name="" />
+                <button onclick="deleteParamInput(this)">删除</button><br /><br />
+            </div>
+        </template>
+    </template>
+    <template id="hybridContent">
+        <!-- <label for="page">内置页面</label>
+        <input type="text" id="page" name="page" /> -->
+        <label for="url">页面url</label>
+        <input type="text" id="url" name="url" required /><br /><br />
+        <button class="submit" type="submit">生成</button>
+    </template>
+    <template id="webappsContent">
+        <!-- <label for="page">内置页面</label>
+        <input type="text" id="page" name="page" /> -->
+        <label form="checkLogin">是否需要入口校验登录 </label>
+        <select name="checkLogin" id="checkLogin">
+            <option value="0" selected disabled>----</option>
+            <option value="1">是</option>
+            <option value="2">否</option>
+        </select><br /><br />
+        <div id="webappsParams"></div><br />
+        <template id="webappsCheckLoginParam">
+            <label form="checkLogin">登录权限</label>
+            <select name="checkLogin" id="checkLogin">
+                <!-- <option value="0" selected disabled>----</option> -->
+                <option value="1">普通交易登录</option>
+                <!-- <option value="2">pid登录</option> -->
+            </select><br /><br />
+            <label for="url">页面url</label>
+            <input type="url" id="url" name="url" required /><br /><br />
+            <button class="submit" type="submit">生成</button>
+        </template>
+        <template id="webappsNoCheckLoginParam">
+            <label for="url">页面url</label>
+            <input type="url" id="url" name="url" required /><br /><br />
+            <button class="submit" type="submit">生成</button>
+        </template>
+    </template>
+</body>
+<script>
+    const appendParamInput = (() => {
+        let count = 1;
+        return function (e) {
+            console.log('appendParamInput', e);
+            const template = document.querySelector('#customParam');
+            const [label, input] = template.content.querySelectorAll('input');
+            label.id = label.name = `key${count}`;
+            input.id = input.name = `value${count++}`;
+            e.insertAdjacentHTML('beforeBegin', template.innerHTML);
+        }
+    })();
+    const deleteParamInput = (e) => {
+        console.log('deleteParamInput', e);
+        const div = e.parentNode;
+        div.parentNode.removeChild(div);
+    }
+
+    const checkLoginChange = (e) => {
+        console.log("checkLoginChange", e, e.target.value);
+        const ele = document.querySelector("#webappsParams");
+        const templateId = {
+            1: '#webappsCheckLoginParam',
+            2: '#webappsNoCheckLoginParam',
+        }[e.target.value];
+        const template = document.querySelector(templateId);
+        ele.innerHTML = template.innerHTML;
+        document.querySelector('#answerContent').innerHTML = "";
+    }
+
+    const pageTypeChange = (e) => {
+        console.log("pageTypeChange", e, e.target.value);
+        const ele = document.querySelector("#pageContent");
+        const templateId = {
+            1: '#nativeContent',
+            2: '#hybridContent',
+            3: '#webappsContent',
+        }[e.target.value];
+        const template = document.querySelector(templateId);
+        ele.innerHTML = template.innerHTML;
+        document.querySelector('#answerContent').innerHTML = "";
+
+        if (e.target.value == 3) {
+            document.querySelector("#urlForm select[name=checkLogin]").onchange = checkLoginChange;
+        }
+    }
+    const giveAnswer = (e) => {
+        console.log('giveAnawer', e);
+        const params = Array.from(e.target.elements)
+            .map(n => {
+                if (n.type == 'radio') {
+                    if (n.checked) { return { name: n.name, value: n.value } }
+                    else { return null }
+                } else {
+                    return { name: n.name, value: n.value };
+                }
+            })
+            .filter(n => n && n.name && n.value);
+        const [{ value: pageType }, ...rest] = params;
+        let answer = '';
+        if (pageType == 1) {
+            const dataMap = {};
+            rest.map(({ name, value }) => {
+                console.log('rest map', name, value);
+                if (name.startsWith('key')) {
+                    const [, index] = name.split('key');
+                    if (!dataMap[index]) dataMap[index] = {};
+                    dataMap[index].key = value;
+                } else if (name.startsWith('value')) {
+                    const [, index] = name.split('value');
+                    if (!dataMap[index]) dataMap[index] = {};
+                    dataMap[index].value = value;
+                }
+                console.log('res', { ...dataMap })
+            });
+            answer = `native://?${Object.values(dataMap)
+                .filter(ele => ele.key && ele.value)
+                .map(ele => `${ele.key}=${ele.value}`)
+                .join('&')}`;
+        } else if (pageType == 2) {
+            const [{ value: url }] = rest;
+            answer = url.startsWith('/') || url.startsWith('yjb://yjb/') ? url : 'hybrid链接应以 / 或 yjb://yjb/ 开始';
+        } else if (pageType == 3) {
+            const [{ value: checkLogin }, ...xrest] = rest;
+            if (checkLogin == 1) {
+                const [, { value: url }] = xrest;
+                answer = `/bridge/build/bridge.html?login_type=${1}&isNewPage=1&back_url=${encodeURIComponent(url)}`;
+            } else {
+                const [{ value: url }] = xrest;
+                answer = url;
+            }
+        }
+
+        document.querySelector('#answerContent').innerHTML = answer;
+    }
+    window.onload = () => {
+        document.querySelector("#urlForm select[name=pageType]").onchange = pageTypeChange;
+        document.querySelector("#urlForm").onsubmit = giveAnswer;
+
+    }
+</script>
+
+</html>
